@@ -4,7 +4,6 @@ void main() {
   runApp(const MeuApp());
 }
 
-
 class MeuApp extends StatelessWidget {
   const MeuApp({super.key});
 
@@ -31,13 +30,13 @@ class AgendamentoEventoTela extends StatefulWidget {
 }
 
 class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
-  
   static final DateTime _dataPadrao = DateTime.now();
   static const TimeOfDay _horarioPadrao = TimeOfDay(hour: 19, minute: 0);
+  static const String _tipoPadrao = 'Aniversário';
 
-  
   late DateTime _dataSelecionada;
   late TimeOfDay _horarioSelecionado;
+  late String _tipoEventoSelecionado;
 
   @override
   void initState() {
@@ -49,6 +48,7 @@ class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
     setState(() {
       _dataSelecionada = _dataPadrao;
       _horarioSelecionado = _horarioPadrao;
+      _tipoEventoSelecionado = _tipoPadrao;
     });
     print('[DEBUG] Formulário resetado para os valores padrão.');
   }
@@ -61,6 +61,7 @@ class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
       'Data: ${_dataSelecionada.day}/${_dataSelecionada.month}/${_dataSelecionada.year}',
     );
     print('Horário: ${_horarioSelecionado.format(context)}');
+    print('Tipo de evento: $_tipoEventoSelecionado');
     print('====================================');
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -70,35 +71,34 @@ class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
     );
   }
 
-
   Future<void> _selecionarData(BuildContext context) async {
     final DateTime? data = await showDatePicker(
-      context: context, 
+      context: context,
       initialDate: _dataSelecionada,
-      firstDate: DateTime.now(), 
-      lastDate: DateTime(2030)
-      );
-      if (data != null && data != _dataSelecionada) {
-        setState(() {
-          _dataSelecionada = data;
-        });
-        print('[DEBUG - DatePicker] Data selecionada: $data');
-      }
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2030),
+    );
+    if (data != null && data != _dataSelecionada) {
+      setState(() {
+        _dataSelecionada = data;
+      });
+      print('[DEBUG - DatePicker] Data selecionada: $data');
+    }
   }
 
   Future<void> _selecionarHorario(BuildContext context) async {
     final TimeOfDay? horario = await showTimePicker(
-      context: context, 
-      initialTime: _horarioSelecionado
+      context: context,
+      initialTime: _horarioSelecionado,
+    );
+    if (horario != null && horario != _horarioSelecionado) {
+      setState(() {
+        _horarioSelecionado = horario;
+      });
+      print(
+        '[DEBUG - DatePicker] Data selecionada: ${horario.format(context)}',
       );
-      if (horario != null && horario != _horarioSelecionado) {
-        setState(() {
-          _horarioSelecionado = horario;
-        });
-        print(
-          '[DEBUG - DatePicker] Data selecionada: ${horario.format(context)}',
-        );
-      }
+    }
   }
 
   @override
@@ -113,33 +113,63 @@ class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             Text(
               'Data e horário',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 8,),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () => _selecionarData(context),
-                    icon: const Icon(Icons.calendar_today), 
+                    icon: const Icon(Icons.calendar_today),
                     label: Text(
                       '${_dataSelecionada.day}/${_dataSelecionada.month}/${_dataSelecionada.year}',
                     ),
-                    ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _selecionarHorario(context),
-                        label: Text(_horarioSelecionado.format(context)),
-                        icon: const Icon(Icons.access_time),
-                        ),
-                      ),
-
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _selecionarHorario(context),
+                    label: Text(_horarioSelecionado.format(context)),
+                    icon: const Icon(Icons.access_time),
+                  ),
+                ),
               ],
+            ),
+            const Divider(height: 32),
+
+            Text(
+              'Tipo de evento',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              initialValue: _tipoEventoSelecionado,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
+              items: ['Aniversário', 'Casamento', 'Corporativo', 'Outro']
+                  .map(
+                    (tipo) => DropdownMenuItem(value: tipo, child: Text(tipo)),
+                  )
+                  .toList(),
+              onChanged: (novoValor) {
+                if (novoValor != null) {
+                  setState(() {
+                    _tipoEventoSelecionado = novoValor;
+                  });
+                  print(
+                    '[DEBUG - Menu] Tipo de evento selecionado: $novoValor',
+                  );
+                }
+              },
             ),
             const Divider(height: 32),
           ],
