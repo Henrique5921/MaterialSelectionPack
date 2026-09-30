@@ -50,6 +50,7 @@ class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
     'Vegano',
   ];
   static const List<String> _tagsPadrao = [];
+  static const bool _lembretePadrao = true;
 
   late DateTime _dataSelecionada;
   late TimeOfDay _horarioSelecionado;
@@ -58,6 +59,7 @@ class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
   late Visibilidade _visibilidadeSelecionada;
   late Map<String, bool> _servicosSelecionados;
   late List<String> _tagsSelecionadas;
+  late bool _notificacaoAtiva;
 
   @override
   void initState() {
@@ -75,6 +77,7 @@ class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
       _servicosSelecionados = Map<String, bool>.from(_servicosPadrao);
     });
     _tagsSelecionadas = List<String>.from(_tagsPadrao);
+    _notificacaoAtiva = _lembretePadrao;
     print('[DEBUG] Formulário resetado para os valores padrão.');
   }
 
@@ -91,6 +94,7 @@ class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
     print('Visibilidade: $_visibilidadeSelecionada');
     print('Serviços Adicionais: $_servicosSelecionados');
     print('Restrições Alimentares (Tags): $_tagsSelecionadas');
+    print('Lembrete Automático: $_notificacaoAtiva');
     print('====================================');
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -310,6 +314,48 @@ class _AgendamentoEventoTelaState extends State<AgendamentoEventoTela> {
               }).toList(),
             ),
             const Divider(height: 32),
+            SwitchListTile(
+              title: const Text('Enviar Lembrete Automático'),
+              subtitle: const Text(
+                'Notificar convidados 24 horas antes do evento',
+              ),
+              value: _notificacaoAtiva,
+              onChanged: (bool ativo) {
+                setState(() {
+                  _notificacaoAtiva = ativo;
+                });
+                print(
+                  '[DEBUG - Switch] Notificação automática alterada para: $ativo',
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _resetarValores,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                      side: const BorderSide(color: Colors.red),
+                    ),
+                    child: const Text('Cancelar'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _salvarFormulario,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Salvar'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
